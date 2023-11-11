@@ -8,20 +8,20 @@ const startButton = document.getElementById('startButton');
 const usedLettersElement = document.getElementById('usedLetters');
 const topWordsList = document.getElementById('topWordsList');
 const totalScoreElement = document.getElementById('totalScore');
-const hintButton = document.getElementById('hintButton');
+const hintButton=document.getElementById('hintButton')
 
 let canvas = document.getElementById('canvas');
 let ctx = canvas.getContext('2d');
-ctx.canvas.width = 0;
+ctx.canvas.width  = 0;
 ctx.canvas.height = 0;
 
 const bodyParts = [
-  [4, 2, 1, 1],
-  [4, 3, 1, 2],
-  [3, 5, 1, 1],
-  [5, 5, 1, 1],
-  [3, 3, 1, 1],
-  [5, 3, 1, 1]
+    [4,2,1,1],
+    [4,3,1,2],
+    [3,5,1,1],
+    [5,5,1,1],
+    [3,3,1,1],
+    [5,3,1,1]
 ];
 
 let selectedWord;
@@ -39,7 +39,7 @@ const addLetter = letter => {
   const letterElement = document.createElement('span');
   letterElement.innerHTML = letter.toUpperCase();
   usedLettersElement.appendChild(letterElement);
-};
+}
 
 const addBodyPart = bodyPart => {
   ctx.fillStyle = '#fff';
@@ -49,50 +49,53 @@ const addBodyPart = bodyPart => {
 const wrongLetter = () => {
   addBodyPart(bodyParts[mistakes]);
   mistakes++;
-  if (mistakes === bodyParts.length) endGame();
-};
+  totalScore-= 65; //cada que se equivoque el usuario se le restan 65 puntos del puntaje 
+  if(mistakes === bodyParts.length) endGame();
+}
 
 const endGame = () => {
   document.removeEventListener('keydown', letterEvent);
   startButton.style.display = 'block';
-  hintButton.style.display = 'none';
-};
+}
 
 const correctLetter = letter => {
-  const { children } = wordContainer;
-  for (let i = 0; i < children.length; i++) {
-    if (children[i].innerHTML === letter) {
-      children[i].classList.toggle('hidden');
-      hits++;
-    }
+  const { children } =  wordContainer;
+  for(let i = 0; i < children.length; i++) {
+      if(children[i].innerHTML === letter) {
+          children[i].classList.toggle('hidden');
+          hits++;
+      }
   }
-  if (hits === selectedWord.length) endGame();
-};
+  totalScore+= 100; //sumamos 100 puntos cada que adivina la letra
+  if(hits === selectedWord.length) endGame();
+}
 
 const letterInput = letter => {
-  if (selectedWord.includes(letter)) {
-    correctLetter(letter);
+  if(selectedWord.includes(letter)) {
+      correctLetter(letter);
   } else {
-    wrongLetter();
+      wrongLetter();
   }
+  // actualiza el contador del puntaje de la pantalla cada vez que ingrese una letra
+  totalScoreElement.textContent = `Puntaje Total: ${totalScore}`; 
   addLetter(letter);
   usedLetters.push(letter);
 };
 
 const letterEvent = event => {
   let newLetter = event.key.toUpperCase();
-  if (newLetter.match(/^[a-zñ]$/i) && !usedLetters.includes(newLetter)) {
-    letterInput(newLetter);
-  }
+  if(newLetter.match(/^[a-zñ]$/i) && !usedLetters.includes(newLetter)) {
+      letterInput(newLetter);
+  };
 };
 
 const drawWord = () => {
   selectedWord.forEach(letter => {
-    const letterElement = document.createElement('span');
-    letterElement.innerHTML = letter.toUpperCase();
-    letterElement.classList.add('letter');
-    letterElement.classList.add('hidden');
-    wordContainer.appendChild(letterElement);
+      const letterElement = document.createElement('span');
+      letterElement.innerHTML = letter.toUpperCase();
+      letterElement.classList.add('letter');
+      letterElement.classList.add('hidden');
+      wordContainer.appendChild(letterElement);
   });
 };
 
@@ -102,7 +105,7 @@ const selectRandomWord = () => {
 };
 
 const drawHangMan = () => {
-  ctx.canvas.width = 120;
+  ctx.canvas.width  = 120;
   ctx.canvas.height = 160;
   ctx.scale(20, 20);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -125,6 +128,27 @@ const startGame = () => {
   selectRandomWord();
   drawWord();
   document.addEventListener('keydown', letterEvent);
+  if (gameOver) {
+        playerHasLost = true;
+    } else {
+        playerHasLost = false;
+    }
+
+    if (!playerHasLost) {
+        const guessWord = "palabra_adivinada"; 
+        const guessScore = 100; 
+        maxHeap.insert(guessWord, guessScore);
+    }
+
+    topWordsList.innerHTML = ""; 
+    for (let i = 0; i < numTopWords; i++) {
+        const maxWord = maxHeap.extractMax();
+        if (maxWord) {
+            const listItem = document.createElement("li");
+            listItem.textContent = `${i + 1}. ${maxWord.word} - Puntaje: ${maxWord.score}`;
+            topWordsList.appendChild(listItem);
+        }
+    }
 };
 
 startButton.addEventListener('click', startGame);
@@ -139,7 +163,6 @@ hintButton.addEventListener('click', () => {
     alert('No hay pista disponible para esta palabra.');
   }
 });
-
 class MaxHeap {
   constructor() {
     this.heap = [];
@@ -230,3 +253,4 @@ if (maxWord) {
   topWordsList.appendChild(listItem);
 }
 }
+
