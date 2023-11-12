@@ -1,19 +1,51 @@
 //Avance proyecto final
 //             Integrantes
 //Angelica Paola Rivera Aragon. Matricula:345541
-//Danna Maribel Corral Salcedo Matricula: 358147
-//Laura Cecilia Holguin Campos Matricula: 
+//Danna Maribel Corral Salcedo Matricula: 358147 
+const csvFileName = 'Diccjuego2023.csv';
 const wordContainer = document.getElementById('wordContainer');
 const startButton = document.getElementById('startButton');
 const usedLettersElement = document.getElementById('usedLetters');
 const topWordsList = document.getElementById('topWordsList');
 const totalScoreElement = document.getElementById('totalScore');
-const hintButton=document.getElementById('hintButton')
+const hintButton = document.getElementById('hintButton');
 
 let canvas = document.getElementById('canvas');
 let ctx = canvas.getContext('2d');
 ctx.canvas.width  = 0;
 ctx.canvas.height = 0;
+
+function readCSV() {//leemos el archivo csv
+  const fileInput = document.getElementById('csvFileInput');
+  const file = fileInput.files[0];
+
+  if (file) {
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+      const csvContent = e.target.result;
+      const dataList = parseCSV(csvContent);
+      console.log('Contenido del CSV:', dataList);
+    };
+
+    reader.readAsText(file);
+  } else {
+    console.log('Selecciona un archivo CSV primero.'); //seleccionamos el archivocsv
+  }
+}
+
+function parseCSV(csvContent) {
+  const rows = csvContent.split('\n');
+  const dataList = [];
+
+  for (const row of rows) {
+    const columns = row.split(',');
+    dataList.push(columns);
+  }
+
+  return dataList;
+}
+
 
 const bodyParts = [
     [4,2,1,1],
@@ -120,6 +152,8 @@ const startGame = () => {
   usedLetters = [];
   mistakes = 0;
   hits = 0;
+  gameOver = false;
+  numTopWords = topWordsList.length;
   wordContainer.innerHTML = '';
   usedLettersElement.innerHTML = '';
   startButton.style.display = 'none';
@@ -163,6 +197,11 @@ hintButton.addEventListener('click', () => {
     alert('No hay pista disponible para esta palabra.');
   }
 });
+
+class Tablehash{
+  
+}
+
 class MaxHeap {
   constructor() {
     this.heap = [];
@@ -235,6 +274,16 @@ class MaxHeap {
 const maxHeap = new MaxHeap();
 let totalScore = 0;
 
+//for (let i = 0; i < numTopWords; i++) {
+//const maxWord = maxHeap.extractMax();
+//if (maxWord) {
+ // const listItem = document.createElement("li");
+  //listItem.textContent = `${i + 1}. ${maxWord.word} - Puntaje: ${maxWord.score}`;
+ // topWordsList.appendChild(listItem);
+//}
+//}
+
+/*const numTopWords = 5;
 for (let i = 0; i < numTopWords; i++) {
 const maxWord = maxHeap.extractMax();
 if (maxWord) {
@@ -243,14 +292,4 @@ if (maxWord) {
   topWordsList.appendChild(listItem);
 }
 }
-
-const numTopWords = 5;
-for (let i = 0; i < numTopWords; i++) {
-const maxWord = maxHeap.extractMax();
-if (maxWord) {
-  const listItem = document.createElement("li");
-  listItem.textContent = `${i + 1}. ${maxWord.word} - Puntaje: ${maxWord.score}`;
-  topWordsList.appendChild(listItem);
-}
-}
-
+*/
