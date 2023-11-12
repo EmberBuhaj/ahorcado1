@@ -152,9 +152,11 @@ const startGame = () => {
   usedLetters = [];
   mistakes = 0;
   hits = 0;
+  totalScore = 0;
   gameOver = false;
   numTopWords = topWordsList.length;
   wordContainer.innerHTML = '';
+  totalScoreElement.textContent = `Puntaje Total: ${totalScore}`; 
   usedLettersElement.innerHTML = '';
   startButton.style.display = 'none';
   hintButton.style.display = 'block'; 
@@ -272,24 +274,3 @@ class MaxHeap {
 }
 }
 const maxHeap = new MaxHeap();
-let totalScore = 0;
-
-//for (let i = 0; i < numTopWords; i++) {
-//const maxWord = maxHeap.extractMax();
-//if (maxWord) {
- // const listItem = document.createElement("li");
-  //listItem.textContent = `${i + 1}. ${maxWord.word} - Puntaje: ${maxWord.score}`;
- // topWordsList.appendChild(listItem);
-//}
-//}
-
-/*const numTopWords = 5;
-for (let i = 0; i < numTopWords; i++) {
-const maxWord = maxHeap.extractMax();
-if (maxWord) {
-  const listItem = document.createElement("li");
-  listItem.textContent = `${i + 1}. ${maxWord.word} - Puntaje: ${maxWord.score}`;
-  topWordsList.appendChild(listItem);
-}
-}
-*/
