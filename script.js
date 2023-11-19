@@ -2,6 +2,7 @@
 //             Integrantes
 //Angelica Paola Rivera Aragon. Matricula:345541
 //Danna Maribel Corral Salcedo Matricula: 358147 
+//Laura Cecilia Holguin Campos Matricula: 360743
 const csvFileName = 'Diccjuego2023.csv';
 const wordContainer = document.getElementById('wordContainer');
 const startButton = document.getElementById('startButton');
