@@ -7,7 +7,9 @@
 const csvFileName = 'Diccjuego2023.csv';
 const wordContainer = document.getElementById('wordContainer');
 const startButton = document.getElementById('startButton');
+const endGameButton = document.getElementById('endGameButton');
 const usedLettersElement = document.getElementById('usedLetters');
+const topWords = document.getElementById('topWords');
 const topWordsList = document.getElementById('topWordsList');
 const totalScoreElement = document.getElementById('totalScore');
 const hintButton = document.getElementById('hintButton');
@@ -78,6 +80,7 @@ let usedLetters;
 let mistakes;
 let hits;
 let totalScore=0;
+let numTopWords = 0;
 
 const hintsTable = {
   Lavadora: 'Pista para palabra 1',
@@ -105,17 +108,22 @@ const wrongLetter = () => {
 
 const loseGame = () => {
   document.removeEventListener('keydown', letterEvent);
+  endGameButton.style.display = 'block';
   startButton.style.display = 'block';
+  hintButton.style.display = 'none';
   const word=selectedWord.join('');
   hashTable.remove(word);
 }
 
 const winGame = () => {
   document.removeEventListener('keydown', letterEvent);
+  endGameButton.style.display = 'block';
   startButton.style.display = 'block';
+  hintButton.style.display = 'none';
   const word=selectedWord.join('');
   hashTable.remove(word);
   maxHeap.insert(word, totalScore);
+  numTopWords++;
 }
 
 const correctLetter = letter => {
@@ -210,11 +218,13 @@ const startGame = () => {
   hits = 0;
   totalScore = 0;
   gameOver = false;
-  numTopWords = topWordsList.length;
   wordContainer.innerHTML = '';
+  topWordsList.innerHTML = "";
+  topWords.style.display = 'none';
   totalScoreElement.textContent = `Puntaje Total: ${totalScore}`;
   usedLettersElement.innerHTML = '';
   startButton.style.display = 'none';
+  endGameButton.style.display = 'none';
   hintButton.style.display = 'block';
   drawHangMan();
   selectedWord = selectRandomWord();
@@ -227,14 +237,14 @@ const startGame = () => {
     playerHasLost = false;
   }
 
-  // if (!playerHasLost) {
-  //   const guessWord = "palabra_adivinada";
-  //   const guessScore = 100;
-  //   maxHeap.insert(guessWord, guessScore);
-  // }
+};
+startButton.addEventListener('click', startGame);
 
+const endGame=()=>{
+  topWords.style.display = 'block';
   topWordsList.innerHTML = "";
-  for (let i = 0; i < numTopWords; i++) {
+  const length=maxHeap.heap.length;
+  for(let i=0; i<length; i++){
     const maxWord = maxHeap.extractMax();
     if (maxWord) {
       const listItem = document.createElement("li");
@@ -242,9 +252,8 @@ const startGame = () => {
       topWordsList.appendChild(listItem);
     }
   }
-};
-
-startButton.addEventListener('click', startGame);
+}
+endGameButton.addEventListener('click', endGame);
 
 hintButton.addEventListener('click', () => {
   const currentWord = selectedWord.join('');
@@ -394,6 +403,7 @@ class MaxHeap {
     const length = this.heap.length;
     const element = this.heap[0];
     while (true) {
+      console.log("A");
       const leftChildIdx = 2 * index + 1;
       const rightChildIdx = 2 * index + 2;
       let leftChild, rightChild;

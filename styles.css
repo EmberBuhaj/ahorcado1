@@ -28,7 +28,7 @@ body{
     background-color: #fff;
     min-width: 12px;
 }
-#startButton{
+.button{
     margin-top: 20px;
     appearance: none;
     font-family: 'SF Pixelate', sans-serif;
