@@ -1,8 +1,9 @@
-//Avance proyecto final
+//Proyecto Final "Ahorcado"
 //             Integrantes
-//Angelica Paola Rivera Aragon. Matricula:345541
-//Danna Maribel Corral Salcedo Matricula: 358147 
-//Laura Cecilia Holguin Campos Matricula: 360743
+//Angelica Paola Rivera Aragon. Matricula: 345541
+//Danna Maribel Corral Salcedo. Matricula: 358147 
+//Laura Cecilia Holguin Campos. Matricula: 360743
+//Lenguaje de programacion: JavaScript
 const csvFileName = 'Diccjuego2023.csv';
 const wordContainer = document.getElementById('wordContainer');
 const startButton = document.getElementById('startButton');
@@ -201,8 +202,63 @@ hintButton.addEventListener('click', () => {
   }
 });
 
-class Tablehash{
-  
+//se sugiere hacer: npm install csv-parser
+const fs = require('fs');
+const csv = require('csv-parser');
+
+class TablaHash {
+  constructor(size) {
+    this.size = size;
+    this.table = new Array(size);
+  }
+
+  hash(key) {
+    let hash = 0;
+    for (let i = 0; i < key.length; i++) {
+      hash += key.charCodeAt(i);
+    }
+    return hash % this.size;
+  }
+
+  insert(key, value) {
+    const index = this.hash(key);
+    if (!this.table[index]) {
+      this.table[index] = [];
+    }
+    this.table[index].push({ key, value });
+  }
+
+  cargarDesdeCSV(archivo) {
+    fs.createReadStream(archivo)
+      .pipe(csv())
+      .on('data', (row) => {
+        const key = row.columna1; // Reemplaza 'columna1' con el nombre de la primera columna
+        const value = row.columna2; // Reemplaza 'columna2' con el nombre de la segunda columna
+        this.insert(key, value);
+      })
+      
+  }
+
+  search(key) {
+    const index = this.hash(key);
+    const bucket = this.table[index];
+    if (bucket) {
+      for (const entry of bucket) {
+        if (entry.key === key) {
+          return entry.value;
+        }
+      }
+    }
+    return null; // La clave no se encontró
+  }
+
+  remove(key) {
+    const index = this.hash(key);
+    const bucket = this.table[index];
+    if (bucket) {
+      this.table[index] = bucket.filter(entry => entry.key !== key);
+    }
+  }
 }
 
 class MaxHeap {
