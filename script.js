@@ -56,7 +56,7 @@ function saveArrayInHashTable(arrayWords) {
   // Iterar sobre el arrayWords y guardar cada par de valores en la tabla hash
   for (const columns of arrayWords) {
     if (columns.length >= 2) {
-      const key = columns[0];
+      const key = columns[0].toUpperCase();
       const value = columns[1];
       hashTable.insert(key, value);
     }
@@ -119,7 +119,7 @@ const correctLetter = letter => {
   if(hits === selectedWord.length) endGame();
 }
 
-const letterInput = letter => {
+const letterInput = (letter) => {
   if(selectedWord.includes(letter)) {
       correctLetter(letter);
   } else {
@@ -169,7 +169,6 @@ function selectRandomWord(){
         if (currentNode.siguiente) {
           currentNode = currentNode.siguiente;
         } else {
-          console.log("ERROR SE ESTA SALIENDO DE LA LISTA");
           break;
         }
       }
@@ -208,7 +207,6 @@ const startGame = () => {
   hintButton.style.display = 'block'; 
   drawHangMan();
   selectedWord=selectRandomWord();
-  console.log(selectedWord, typeof selectedWord);
   drawWord();
   document.addEventListener('keydown', letterEvent);
   if (gameOver) {
