@@ -14,7 +14,7 @@ const hintButton = document.getElementById('hintButton');
 
 let canvas = document.getElementById('canvas');
 let ctx = canvas.getContext('2d');
-ctx.canvas.width  = 0;
+ctx.canvas.width = 0;
 ctx.canvas.height = 0;
 
 document.getElementById('csvFileInput').addEventListener('change', handleFileSelect);
@@ -65,18 +65,19 @@ function saveArrayInHashTable(arrayWords) {
 
 
 const bodyParts = [
-    [4,2,1,1],
-    [4,3,1,2],
-    [3,5,1,1],
-    [5,5,1,1],
-    [3,3,1,1],
-    [5,3,1,1]
+  [4, 2, 1, 1],
+  [4, 3, 1, 2],
+  [3, 5, 1, 1],
+  [5, 5, 1, 1],
+  [3, 3, 1, 1],
+  [5, 3, 1, 1]
 ];
 
 let selectedWord;
 let usedLetters;
 let mistakes;
 let hits;
+let totalScore=0;
 
 const hintsTable = {
   Lavadora: 'Pista para palabra 1',
@@ -98,57 +99,67 @@ const addBodyPart = bodyPart => {
 const wrongLetter = () => {
   addBodyPart(bodyParts[mistakes]);
   mistakes++;
-  totalScore-= 65; //cada que se equivoque el usuario se le restan 65 puntos del puntaje 
-  if(mistakes === bodyParts.length) endGame();
+  totalScore -= 65; //cada que se equivoque el usuario se le restan 65 puntos del puntaje 
+  if (mistakes === bodyParts.length) loseGame();
 }
 
-const endGame = () => {
+const loseGame = () => {
   document.removeEventListener('keydown', letterEvent);
   startButton.style.display = 'block';
+  const word=selectedWord.join('');
+  hashTable.remove(word);
+}
+
+const winGame = () => {
+  document.removeEventListener('keydown', letterEvent);
+  startButton.style.display = 'block';
+  const word=selectedWord.join('');
+  hashTable.remove(word);
+  maxHeap.insert(word, totalScore);
 }
 
 const correctLetter = letter => {
-  const { children } =  wordContainer;
-  for(let i = 0; i < children.length; i++) {
-      if(children[i].innerHTML === letter) {
-          children[i].classList.toggle('hidden');
-          hits++;
-      }
+  const { children } = wordContainer;
+  for (let i = 0; i < children.length; i++) {
+    if (children[i].innerHTML === letter) {
+      children[i].classList.toggle('hidden');
+      hits++;
+    }
   }
-  totalScore+= 100; //sumamos 100 puntos cada que adivina la letra
-  if(hits === selectedWord.length) endGame();
+  totalScore += 100; //sumamos 100 puntos cada que adivina la letra
+  if (hits === selectedWord.length) winGame();
 }
 
 const letterInput = (letter) => {
-  if(selectedWord.includes(letter)) {
-      correctLetter(letter);
+  if (selectedWord.includes(letter)) {
+    correctLetter(letter);
   } else {
-      wrongLetter();
+    wrongLetter();
   }
   // actualiza el contador del puntaje de la pantalla cada vez que ingrese una letra
-  totalScoreElement.textContent = `Puntaje Total: ${totalScore}`; 
+  totalScoreElement.textContent = `Puntaje Total: ${totalScore}`;
   addLetter(letter);
   usedLetters.push(letter);
 };
 
 const letterEvent = event => {
   let newLetter = event.key.toUpperCase();
-  if(newLetter.match(/^[a-zñ]$/i) && !usedLetters.includes(newLetter)) {
-      letterInput(newLetter);
+  if (newLetter.match(/^[a-zñ]$/i) && !usedLetters.includes(newLetter)) {
+    letterInput(newLetter);
   };
 };
 
 const drawWord = () => {
   selectedWord.forEach(letter => {
-      const letterElement = document.createElement('span');
-      letterElement.innerHTML = letter.toUpperCase();
-      letterElement.classList.add('letter');
-      letterElement.classList.add('hidden');
-      wordContainer.appendChild(letterElement);
+    const letterElement = document.createElement('span');
+    letterElement.innerHTML = letter.toUpperCase();
+    letterElement.classList.add('letter');
+    letterElement.classList.add('hidden');
+    wordContainer.appendChild(letterElement);
   });
 };
 
-function selectRandomWord(){
+function selectRandomWord() {
   let selectedWord = null;
 
   // Mientras no se haya seleccionado una palabra aleatoria
@@ -182,7 +193,7 @@ function selectRandomWord(){
 };
 
 const drawHangMan = () => {
-  ctx.canvas.width  = 120;
+  ctx.canvas.width = 120;
   ctx.canvas.height = 160;
   ctx.scale(20, 20);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -201,45 +212,46 @@ const startGame = () => {
   gameOver = false;
   numTopWords = topWordsList.length;
   wordContainer.innerHTML = '';
-  totalScoreElement.textContent = `Puntaje Total: ${totalScore}`; 
+  totalScoreElement.textContent = `Puntaje Total: ${totalScore}`;
   usedLettersElement.innerHTML = '';
   startButton.style.display = 'none';
-  hintButton.style.display = 'block'; 
+  hintButton.style.display = 'block';
   drawHangMan();
-  selectedWord=selectRandomWord();
+  selectedWord = selectRandomWord();
+  console.log(selectedWord);
   drawWord();
   document.addEventListener('keydown', letterEvent);
   if (gameOver) {
-        playerHasLost = true;
-    } else {
-        playerHasLost = false;
-    }
+    playerHasLost = true;
+  } else {
+    playerHasLost = false;
+  }
 
-    if (!playerHasLost) {
-        const guessWord = "palabra_adivinada"; 
-        const guessScore = 100; 
-        maxHeap.insert(guessWord, guessScore);
-    }
+  // if (!playerHasLost) {
+  //   const guessWord = "palabra_adivinada";
+  //   const guessScore = 100;
+  //   maxHeap.insert(guessWord, guessScore);
+  // }
 
-    topWordsList.innerHTML = ""; 
-    for (let i = 0; i < numTopWords; i++) {
-        const maxWord = maxHeap.extractMax();
-        if (maxWord) {
-            const listItem = document.createElement("li");
-            listItem.textContent = `${i + 1}. ${maxWord.word} - Puntaje: ${maxWord.score}`;
-            topWordsList.appendChild(listItem);
-        }
+  topWordsList.innerHTML = "";
+  for (let i = 0; i < numTopWords; i++) {
+    const maxWord = maxHeap.extractMax();
+    if (maxWord) {
+      const listItem = document.createElement("li");
+      listItem.textContent = `${i + 1}. ${maxWord.word} - Puntaje: ${maxWord.score}`;
+      topWordsList.appendChild(listItem);
     }
+  }
 };
 
 startButton.addEventListener('click', startGame);
 
 hintButton.addEventListener('click', () => {
   const currentWord = selectedWord.join('');
-  const hint=hashTable.search(currentWord);
+  const hint = hashTable.search(currentWord);
 
   if (hint) {
-    alert("La pista es: "+hint);
+    alert("La pista es: " + hint);
   } else {
     alert('No hay pista disponible para esta palabra.');
   }
@@ -256,7 +268,7 @@ class NodoListaEnlazada {
 class ListaEnlazada {
   constructor() {
     this.cabeza = null;
-    this.size=0;
+    this.size = 0;
   }
 
   agregarAlFinal(key, value) {
@@ -333,10 +345,11 @@ class TablaHash {
   remove(key) {
     const index = this.hash(key);
     this.table[index].eliminar(key);
+    console.log(key, this.table[index]);
   }
 }
 
-let hashTable=new TablaHash(9109);
+let hashTable = new TablaHash(9109);
 
 class MaxHeap {
   constructor() {
@@ -396,16 +409,16 @@ class MaxHeap {
       if (rightChildIdx < length) {
         rightChild = this.heap[rightChildIdx];
         if ((swap === null && rightChild.score > element.score) ||
-            (swap !== null && rightChild.score > leftChild.score)) {
+          (swap !== null && rightChild.score > leftChild.score)) {
           swap = rightChildIdx;
         }
 
-      if (swap === null) break;
-      this.heap[index] = this.heap[swap];
-      this.heap[swap] = element;
-      index = swap;
+        if (swap === null) break;
+        this.heap[index] = this.heap[swap];
+        this.heap[swap] = element;
+        index = swap;
+      }
     }
   }
-}
 }
 const maxHeap = new MaxHeap();
