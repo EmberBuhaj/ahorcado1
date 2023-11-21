@@ -85,11 +85,11 @@ let hits;
 let totalScore = 0;
 let numTopWords = 0;
 
-const hintsTable = {
+/**const hintsTable = {
   Lavadora: 'Pista para palabra 1',
   palabra2: 'Pista para palabra 2',
   palabra3: 'Pista para palabra 3',
-};
+};**/
 
 const addLetter = letter => {
   const letterElement = document.createElement('span');
