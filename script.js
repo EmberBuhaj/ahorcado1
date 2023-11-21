@@ -17,8 +17,10 @@ let ctx = canvas.getContext('2d');
 ctx.canvas.width  = 0;
 ctx.canvas.height = 0;
 
-function readCSV() {//leemos el archivo csv
-  const fileInput = document.getElementById('csvFileInput');
+document.getElementById('csvFileInput').addEventListener('change', handleFileSelect);
+
+function handleFileSelect(event) {
+  const fileInput = event.target;
   const file = fileInput.files[0];
 
   if (file) {
@@ -27,12 +29,12 @@ function readCSV() {//leemos el archivo csv
     reader.onload = function (e) {
       const csvContent = e.target.result;
       const dataList = parseCSV(csvContent);
-      console.log('Contenido del CSV:', dataList);
+      console.log(dataList);
+      saveArrayInHashTable(dataList);
+
     };
 
     reader.readAsText(file);
-  } else {
-    console.log('Selecciona un archivo CSV primero.'); //seleccionamos el archivocsv
   }
 }
 
@@ -46,6 +48,19 @@ function parseCSV(csvContent) {
   }
 
   return dataList;
+}
+
+function saveArrayInHashTable(arrayWords) {
+  // Supongamos que hashTable es una instancia de la clase TablaHash
+
+  // Iterar sobre el arrayWords y guardar cada par de valores en la tabla hash
+  for (const columns of arrayWords) {
+    if (columns.length >= 2) {
+      const key = columns[0];
+      const value = columns[1];
+      hashTable.insert(key, value);
+    }
+  }
 }
 
 
@@ -133,9 +148,38 @@ const drawWord = () => {
   });
 };
 
-const selectRandomWord = () => {
-  let word = words[Math.floor((Math.random() * words.length))].toUpperCase();
-  selectedWord = word.split('');
+function selectRandomWord(){
+  let selectedWord = null;
+
+  // Mientras no se haya seleccionado una palabra aleatoria
+  while (!selectedWord) {
+    // Seleccionar un índice aleatorio en el hash table
+    const randomIndex = Math.floor(Math.random() * hashTable.size);
+
+    // Obtener la lista enlazada en el índice aleatorio
+    const linkedList = hashTable.table[randomIndex];
+
+    // Si la lista enlazada no está vacía
+    if (linkedList.cabeza) {
+      // Obtener un nodo aleatorio de la lista enlazada
+      let currentNode = linkedList.cabeza;
+      const randomPosition = Math.floor(Math.random() * linkedList.size);
+
+      for (let i = 0; i < randomPosition; i++) {
+        if (currentNode.siguiente) {
+          currentNode = currentNode.siguiente;
+        } else {
+          console.log("ERROR SE ESTA SALIENDO DE LA LISTA");
+          break;
+        }
+      }
+
+      // Establecer la palabra seleccionada
+      selectedWord = currentNode.key;
+    }
+    // Si la lista enlazada está vacía, continuar el bucle para seleccionar otro índice
+  }
+  return selectedWord.split('');
 };
 
 const drawHangMan = () => {
@@ -163,7 +207,8 @@ const startGame = () => {
   startButton.style.display = 'none';
   hintButton.style.display = 'block'; 
   drawHangMan();
-  selectRandomWord();
+  selectedWord=selectRandomWord();
+  console.log(selectedWord, typeof selectedWord);
   drawWord();
   document.addEventListener('keydown', letterEvent);
   if (gameOver) {
@@ -193,23 +238,80 @@ startButton.addEventListener('click', startGame);
 
 hintButton.addEventListener('click', () => {
   const currentWord = selectedWord.join('');
-  if (hintsTable.hasOwnProperty(currentWord)) {
-    const hintElement = document.getElementById('hintElement'); 
-    hintElement.textContent = `Pista: ${hintsTable[currentWord]}`;
-    hintElement.style.display = 'block';
+  const hint=hashTable.search(currentWord);
+
+  if (hint) {
+    alert("La pista es: "+hint);
   } else {
     alert('No hay pista disponible para esta palabra.');
   }
 });
 
-//se sugiere hacer: npm install csv-parser
-const fs = require('fs');
-const csv = require('csv-parser');
+class NodoListaEnlazada {
+  constructor(key, value) {
+    this.key = key;
+    this.value = value;
+    this.siguiente = null;
+  }
+}
+
+class ListaEnlazada {
+  constructor() {
+    this.cabeza = null;
+    this.size=0;
+  }
+
+  agregarAlFinal(key, value) {
+    const nuevoNodo = new NodoListaEnlazada(key, value);
+    if (!this.cabeza) {
+      this.cabeza = nuevoNodo;
+    } else {
+      let actual = this.cabeza;
+      while (actual.siguiente) {
+        actual = actual.siguiente;
+      }
+      actual.siguiente = nuevoNodo;
+      this.size++;
+    }
+  }
+
+  buscar(key) {
+    let actual = this.cabeza;
+    while (actual) {
+      if (actual.key === key) {
+        return actual.value;
+      }
+      actual = actual.siguiente;
+    }
+    return null;
+  }
+
+  eliminar(key) {
+    if (!this.cabeza) {
+      return;
+    }
+
+    if (this.cabeza.key === key) {
+      this.cabeza = this.cabeza.siguiente;
+      return;
+    }
+
+    let actual = this.cabeza;
+    while (actual.siguiente) {
+      if (actual.siguiente.key === key) {
+        actual.siguiente = actual.siguiente.siguiente;
+        this.size--;
+        return;
+      }
+      actual = actual.siguiente;
+    }
+  }
+}
 
 class TablaHash {
   constructor(size) {
     this.size = size;
-    this.table = new Array(size);
+    this.table = new Array(size).fill(null).map(() => new ListaEnlazada());
   }
 
   hash(key) {
@@ -222,44 +324,21 @@ class TablaHash {
 
   insert(key, value) {
     const index = this.hash(key);
-    if (!this.table[index]) {
-      this.table[index] = [];
-    }
-    this.table[index].push({ key, value });
-  }
-
-  cargarDesdeCSV(archivo) {
-    fs.createReadStream(archivo)
-      .pipe(csv())
-      .on('data', (row) => {
-        const key = row.columna1; // Reemplaza 'columna1' con el nombre de la primera columna
-        const value = row.columna2; // Reemplaza 'columna2' con el nombre de la segunda columna
-        this.insert(key, value);
-      })
-      
+    this.table[index].agregarAlFinal(key, value);
   }
 
   search(key) {
     const index = this.hash(key);
-    const bucket = this.table[index];
-    if (bucket) {
-      for (const entry of bucket) {
-        if (entry.key === key) {
-          return entry.value;
-        }
-      }
-    }
-    return null; // La clave no se encontró
+    return this.table[index].buscar(key);
   }
 
   remove(key) {
     const index = this.hash(key);
-    const bucket = this.table[index];
-    if (bucket) {
-      this.table[index] = bucket.filter(entry => entry.key !== key);
-    }
+    this.table[index].eliminar(key);
   }
 }
+
+let hashTable=new TablaHash(9109);
 
 class MaxHeap {
   constructor() {
@@ -267,6 +346,7 @@ class MaxHeap {
   }
 
   insert(word, score) {
+    console.log(word);
     this.heap.push({ word, score });
     this.bubbleUp();
   }
