@@ -31,8 +31,10 @@ function handleFileSelect(event) {
     reader.onload = function (e) {
       const csvContent = e.target.result;
       const dataList = parseCSV(csvContent);
-      console.log(dataList);
-      saveArrayInHashTable(dataList);
+      if (dataList.length > 0) {
+        wordsLoaded = true;
+        saveArrayInHashTable(dataList);
+      }
 
     };
 
@@ -75,11 +77,12 @@ const bodyParts = [
   [5, 3, 1, 1]
 ];
 
+let wordsLoaded = false;
 let selectedWord;
 let usedLetters;
 let mistakes;
 let hits;
-let totalScore=0;
+let totalScore = 0;
 let numTopWords = 0;
 
 const hintsTable = {
@@ -111,7 +114,7 @@ const loseGame = () => {
   endGameButton.style.display = 'block';
   startButton.style.display = 'block';
   hintButton.style.display = 'none';
-  const word=selectedWord.join('');
+  const word = selectedWord.join('');
   hashTable.remove(word);
 }
 
@@ -120,7 +123,7 @@ const winGame = () => {
   endGameButton.style.display = 'block';
   startButton.style.display = 'block';
   hintButton.style.display = 'none';
-  const word=selectedWord.join('');
+  const word = selectedWord.join('');
   hashTable.remove(word);
   maxHeap.insert(word, totalScore);
   numTopWords++;
@@ -213,38 +216,42 @@ const drawHangMan = () => {
 };
 
 const startGame = () => {
-  usedLetters = [];
-  mistakes = 0;
-  hits = 0;
-  totalScore = 0;
-  gameOver = false;
-  wordContainer.innerHTML = '';
-  topWordsList.innerHTML = "";
-  topWords.style.display = 'none';
-  totalScoreElement.textContent = `Puntaje Total: ${totalScore}`;
-  usedLettersElement.innerHTML = '';
-  startButton.style.display = 'none';
-  endGameButton.style.display = 'none';
-  hintButton.style.display = 'block';
-  drawHangMan();
-  selectedWord = selectRandomWord();
-  console.log(selectedWord);
-  drawWord();
-  document.addEventListener('keydown', letterEvent);
-  if (gameOver) {
-    playerHasLost = true;
+  if (wordsLoaded) {
+    usedLetters = [];
+    mistakes = 0;
+    hits = 0;
+    totalScore = 0;
+    gameOver = false;
+    wordContainer.innerHTML = '';
+    topWordsList.innerHTML = "";
+    topWords.style.display = 'none';
+    totalScoreElement.textContent = `Puntaje Total: ${totalScore}`;
+    usedLettersElement.innerHTML = '';
+    startButton.style.display = 'none';
+    endGameButton.style.display = 'none';
+    hintButton.style.display = 'block';
+    drawHangMan();
+    selectedWord = selectRandomWord();
+    console.log(selectedWord);
+    drawWord();
+    document.addEventListener('keydown', letterEvent);
+    if (gameOver) {
+      playerHasLost = true;
+    } else {
+      playerHasLost = false;
+    }
   } else {
-    playerHasLost = false;
+    alert("Necesita cargar el archivo de palabras");
   }
 
 };
 startButton.addEventListener('click', startGame);
 
-const endGame=()=>{
+const endGame = () => {
   topWords.style.display = 'block';
   topWordsList.innerHTML = "";
-  const length=maxHeap.heap.length;
-  for(let i=0; i<length; i++){
+  const length = maxHeap.heap.length;
+  for (let i = 0; i < length; i++) {
     const maxWord = maxHeap.extractMax();
     if (maxWord) {
       const listItem = document.createElement("li");
