@@ -21,7 +21,6 @@ ctx.canvas.height = 0;
 
 document.getElementById('csvFileInput').addEventListener('change', handleFileSelect);
 
-//Esta función maneja el evento de selección de archivos
 function handleFileSelect(event) {
   const fileInput = event.target;
   const file = fileInput.files[0];
@@ -44,25 +43,18 @@ function handleFileSelect(event) {
 }
 
 function parseCSV(csvContent) {
-  // Separa las filas del contenido CSV mediante la línea de separación '\n'
+  
   const rows = csvContent.split('\n');
-  // Inicializa un arreglo vacío para almacenar los datos procesados
   const dataList = [];
-  // Iterate sobre cada fila del CSV
   for (const row of rows) {
-    // Divide cada fila en columnas mediante la coma ','
     const columns = row.split(',');
-    // Añade las columnas procesadas al arreglo dataList
     dataList.push(columns);
   }
-  // Retorna el arreglo dataList con los datos procesados del CSV
+  
   return dataList;
 }
 
 function saveArrayInHashTable(arrayWords) {
-  // Supongamos que hashTable es una instancia de la clase TablaHash
-
-  // Iterar sobre el arrayWords y guardar cada par de valores en la tabla hash
   for (const columns of arrayWords) {
     if (columns.length >= 2) {
       const key = columns[0].toUpperCase();
@@ -71,7 +63,6 @@ function saveArrayInHashTable(arrayWords) {
     }
   }
 }
-
 
 const bodyParts = [
   [4, 2, 1, 1],
@@ -90,8 +81,6 @@ let hits;
 let totalScore = 0;
 let numTopWords = 0;
 
-//Esta función es utilizada para agregar las letras utilizadas en el juego 
-//de adivinanzas de palabras a la interfaz del juego.
 const addLetter = letter => {
   const letterElement = document.createElement('span');
   letterElement.innerHTML = letter.toUpperCase();
@@ -106,7 +95,7 @@ const addBodyPart = bodyPart => {
 const wrongLetter = () => {
   addBodyPart(bodyParts[mistakes]);
   mistakes++;
-  totalScore -= 65; //cada que se equivoque el usuario se le restan 65 puntos del puntaje 
+  totalScore -= 65; 
   if (mistakes === bodyParts.length) loseGame();
 }
 
@@ -138,7 +127,7 @@ const correctLetter = letter => {
       hits++;
     }
   }
-  totalScore += 100; //sumamos 100 puntos cada que adivina la letra
+  totalScore += 100; 
   if (hits === selectedWord.length) winGame();
 }
 
@@ -148,7 +137,7 @@ const letterInput = (letter) => {
   } else {
     wrongLetter();
   }
-  // actualiza el contador del puntaje de la pantalla cada vez que ingrese una letra
+  
   totalScoreElement.textContent = `Puntaje Total: ${totalScore}`;
   addLetter(letter);
   usedLetters.push(letter);
@@ -173,21 +162,12 @@ const drawWord = () => {
 
 function selectRandomWord() {
   let selectedWord = null;
-
-  // Mientras no se haya seleccionado una palabra aleatoria
   while (!selectedWord) {
-    // Seleccionar un índice aleatorio en el hash table
     const randomIndex = Math.floor(Math.random() * hashTable.size);
-
-    // Obtener la lista enlazada en el índice aleatorio
     const linkedList = hashTable.table[randomIndex];
-
-    // Si la lista enlazada no está vacía
-    if (linkedList.cabeza) {
-      // Obtener un nodo aleatorio de la lista enlazada
+    if (linkedList.cabeza) { 
       let currentNode = linkedList.cabeza;
       const randomPosition = Math.floor(Math.random() * linkedList.size);
-
       for (let i = 0; i < randomPosition; i++) {
         if (currentNode.siguiente) {
           currentNode = currentNode.siguiente;
@@ -195,11 +175,8 @@ function selectRandomWord() {
           break;
         }
       }
-
-      // Establecer la palabra seleccionada
       selectedWord = currentNode.key;
-    }
-    // Si la lista enlazada está vacía, continuar el bucle para seleccionar otro índice
+    }  
   }
   return selectedWord.split('');
 };
@@ -266,7 +243,6 @@ endGameButton.addEventListener('click', endGame);
 hintButton.addEventListener('click', () => {
   const currentWord = selectedWord.join('');
   const hint = hashTable.search(currentWord);
-
   if (hint) {
     alert("La pista es: " + hint);
   } else {
@@ -317,12 +293,10 @@ class ListaEnlazada {
     if (!this.cabeza) {
       return;
     }
-
     if (this.cabeza.key === key) {
       this.cabeza = this.cabeza.siguiente;
       return;
     }
-
     let actual = this.cabeza;
     while (actual.siguiente) {
       if (actual.siguiente.key === key) {
@@ -348,17 +322,14 @@ class TablaHash {
     }
     return hash % this.size;
   }
-
   insert(key, value) {
     const index = this.hash(key);
     this.table[index].agregarAlFinal(key, value);
   }
-
   search(key) {
     const index = this.hash(key);
     return this.table[index].buscar(key);
   }
-
   remove(key) {
     const index = this.hash(key);
     this.table[index].eliminar(key);
@@ -411,7 +382,6 @@ class MaxHeap {
     const length = this.heap.length;
     const element = this.heap[0];
     while (true) {
-      console.log("A");
       const leftChildIdx = 2 * index + 1;
       const rightChildIdx = 2 * index + 2;
       let leftChild, rightChild;
@@ -431,14 +401,11 @@ class MaxHeap {
           swap = rightChildIdx;
         }
       }
-  
       if (swap === null) break;
-  
       this.heap[index] = this.heap[swap];
       this.heap[swap] = element;
       index = swap;
     }
-  }
-  
+  } 
 }
 const maxHeap = new MaxHeap();
