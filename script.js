@@ -416,27 +416,29 @@ class MaxHeap {
       const rightChildIdx = 2 * index + 2;
       let leftChild, rightChild;
       let swap = null;
-
+  
       if (leftChildIdx < length) {
         leftChild = this.heap[leftChildIdx];
         if (leftChild.score > element.score) {
           swap = leftChildIdx;
         }
       }
-
+  
       if (rightChildIdx < length) {
         rightChild = this.heap[rightChildIdx];
         if ((swap === null && rightChild.score > element.score) ||
           (swap !== null && rightChild.score > leftChild.score)) {
           swap = rightChildIdx;
         }
-
-        if (swap === null) break;
-        this.heap[index] = this.heap[swap];
-        this.heap[swap] = element;
-        index = swap;
       }
+  
+      if (swap === null) break;
+  
+      this.heap[index] = this.heap[swap];
+      this.heap[swap] = element;
+      index = swap;
     }
   }
+  
 }
 const maxHeap = new MaxHeap();
