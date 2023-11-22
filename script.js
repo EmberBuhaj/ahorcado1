@@ -21,6 +21,7 @@ ctx.canvas.height = 0;
 
 document.getElementById('csvFileInput').addEventListener('change', handleFileSelect);
 
+//Esta función maneja el evento de selección de archivos
 function handleFileSelect(event) {
   const fileInput = event.target;
   const file = fileInput.files[0];
@@ -43,14 +44,18 @@ function handleFileSelect(event) {
 }
 
 function parseCSV(csvContent) {
+  // Separa las filas del contenido CSV mediante la línea de separación '\n'
   const rows = csvContent.split('\n');
+  // Inicializa un arreglo vacío para almacenar los datos procesados
   const dataList = [];
-
+  // Iterate sobre cada fila del CSV
   for (const row of rows) {
+    // Divide cada fila en columnas mediante la coma ','
     const columns = row.split(',');
+    // Añade las columnas procesadas al arreglo dataList
     dataList.push(columns);
   }
-
+  // Retorna el arreglo dataList con los datos procesados del CSV
   return dataList;
 }
 
@@ -85,7 +90,8 @@ let hits;
 let totalScore = 0;
 let numTopWords = 0;
 
-
+//Esta función es utilizada para agregar las letras utilizadas en el juego 
+//de adivinanzas de palabras a la interfaz del juego.
 const addLetter = letter => {
   const letterElement = document.createElement('span');
   letterElement.innerHTML = letter.toUpperCase();
